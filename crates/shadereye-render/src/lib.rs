@@ -1,5 +1,7 @@
 //! Headless wgpu rendering of Shadertoy-style fragment shaders.
 
+pub mod diff;
+
 use serde::Serialize;
 use shadereye_compile::{wrap_shadertoy_fragment, ShaderLang};
 use wgpu::util::DeviceExt;
