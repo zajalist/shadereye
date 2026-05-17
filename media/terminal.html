@@ -32,27 +32,8 @@
     display:flex;flex-direction:column;
   }
   .panel.full{height:auto;display:block}
-  .head{
-    flex:0 0 auto;
-    display:flex;align-items:center;gap:16px;
-    padding:18px 24px;border-bottom:1px solid var(--border-mid);
-    background:var(--bg-base);
-  }
-  .logo{width:18px;height:18px;flex:none;display:block}
-  .brand{font-family:var(--ui);font-weight:600;font-size:15px;
-          letter-spacing:-.01em;color:var(--text)}
-  .brand b{color:var(--accent);font-weight:600}
-  .head .sep{width:1px;height:15px;background:var(--border-soft)}
-  .eyebrow{
-    font-size:10.5px;font-weight:700;letter-spacing:.24em;
-    text-transform:uppercase;color:var(--accent)
-  }
-  .head .right{
-    margin-left:auto;font-size:10.5px;font-weight:600;letter-spacing:.22em;
-    text-transform:uppercase;color:var(--text-3)
-  }
   #log{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;
-        padding:22px 26px 28px;font-family:var(--mono);
+        padding:26px 28px 28px;font-family:var(--mono);
         font-size:13px;line-height:1.85;color:var(--text-2)}
   #log::-webkit-scrollbar{width:0;height:0;display:none}
   .panel.full #log{overflow:visible;flex:none;scroll-behavior:auto}
@@ -143,17 +124,6 @@
 </head>
 <body>
 <div class="panel">
-  <div class="head">
-    <svg class="logo" viewBox="0 0 24 24" fill="none">
-      <rect x="2.5" y="2.5" width="19" height="19" rx="3" stroke="#B56A1D" stroke-width="1.6"/>
-      <circle cx="12" cy="12" r="4.4" stroke="#B56A1D" stroke-width="1.6"/>
-      <circle cx="12" cy="12" r="1.5" fill="#B56A1D"/>
-    </svg>
-    <span class="brand">shader<b>eye</b></span>
-    <span class="sep"></span>
-    <span class="eyebrow">shader&nbsp;mcp</span>
-    <span class="right">session</span>
-  </div>
   <div id="log"></div>
 </div>
 <script>
