@@ -193,7 +193,9 @@ pub fn render(params: &RenderParams) -> Result<RenderOutput, RenderError> {
             push_constant_ranges: &[],
         });
 
-    let fmt = wgpu::TextureFormat::Rgba8UnormSrgb;
+    // Non-sRGB target: a shader output of 0.5 must read back as ~128 (linear),
+    // not sRGB-encoded to ~188. Keeps the grayscale/probe assertions exact.
+    let fmt = wgpu::TextureFormat::Rgba8Unorm;
     let pipeline = gpu
         .device
         .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -357,6 +359,95 @@ pub fn render_animation(
     })
 }
 
+#[derive(Debug, Clone, Copy, Serialize)]
+pub enum VisualizeMode {
+    GrayscaleFloat,
+    RgVec2,
+    RgbVec3,
+    Normalized,
+    Heatmap,
+}
+
+/// Replace the shader's output with a chosen expression mapped to color.
+/// Only Shadertoy-style GLSL bodies are supported (the common debug case).
+pub fn visualize_expression(
+    glsl_body: &str,
+    expr: &str,
+    mode: VisualizeMode,
+    w: u32,
+    h: u32,
+) -> Result<RenderOutput, RenderError> {
+    let map = match mode {
+        VisualizeMode::GrayscaleFloat => format!("vec3(float({expr}))"),
+        VisualizeMode::RgVec2 => format!("vec3(vec2({expr}), 0.0)"),
+        VisualizeMode::RgbVec3 => format!("vec3({expr})"),
+        VisualizeMode::Normalized => format!("vec3(0.5 + 0.5 * float({expr}))"),
+        VisualizeMode::Heatmap => format!(
+            "(clamp(float({expr}),0.0,1.0) * vec3(1.0,0.0,0.0) + (1.0-clamp(float({expr}),0.0,1.0)) * vec3(0.0,0.0,1.0))"
+        ),
+    };
+    // Keep the user body so helper fns/uniform usage still compile, then override output.
+    let src = format!(
+        "{glsl_body}\nvoid _se_viz(out vec4 o, in vec2 fc){{ o = vec4({map}, 1.0); }}\n\
+         void mainImage(out vec4 o, in vec2 fc){{ _se_viz(o, fc); }}"
+    );
+    // The user's own mainImage would clash; strip it by renaming.
+    let src = src.replacen("void mainImage", "void _se_user_main", 1);
+    render(&RenderParams {
+        source: src,
+        lang: Some(ShaderLang::Glsl),
+        width: w,
+        height: h,
+        time: 0.0,
+        mouse: [0.0; 4],
+    })
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct PixelSample {
+    pub x: u32,
+    pub y: u32,
+    pub rgba: [u8; 4],
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ProbeResult {
+    pub samples: Vec<PixelSample>,
+    #[serde(skip)]
+    pub crop_png: Vec<u8>,
+}
+
+/// Render once, return exact RGBA at each coord plus a 4x-zoomed full-image crop.
+pub fn probe_pixels(
+    params: &RenderParams,
+    coords: &[(u32, u32)],
+) -> Result<ProbeResult, RenderError> {
+    let out = render(params)?;
+    let samples = coords
+        .iter()
+        .map(|&(x, y)| PixelSample {
+            x,
+            y,
+            rgba: out.pixel(x.min(out.width - 1), y.min(out.height - 1)),
+        })
+        .collect();
+    let img = image::RgbaImage::from_raw(out.width, out.height, out.rgba.clone()).unwrap();
+    let zoom = image::imageops::resize(
+        &img,
+        out.width * 4,
+        out.height * 4,
+        image::imageops::FilterType::Nearest,
+    );
+    let mut crop_png = Vec::new();
+    image::DynamicImage::ImageRgba8(zoom)
+        .write_to(
+            &mut std::io::Cursor::new(&mut crop_png),
+            image::ImageFormat::Png,
+        )
+        .map_err(|e| RenderError::Gpu(e.to_string()))?;
+    Ok(ProbeResult { samples, crop_png })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -408,6 +499,44 @@ mod tests {
         assert!(m.width >= 64, "montage width {}", m.width);
         assert_eq!(
             &m.png[0..8],
+            &[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
+        );
+    }
+
+    #[test]
+    fn visualize_expression_grayscale() {
+        // visualize the constant 0.5 as grayscale; whole image ~128
+        let out = visualize_expression(
+            "void mainImage(out vec4 o, in vec2 fc){ o = vec4(0.0); }",
+            "0.5",
+            VisualizeMode::GrayscaleFloat,
+            16,
+            16,
+        )
+        .expect("viz ok");
+        let p = out.pixel(8, 8);
+        assert!((p[0] as i32 - 128).abs() < 20, "got {p:?}");
+    }
+
+    #[test]
+    fn probe_returns_exact_rgba() {
+        let body = "void mainImage(out vec4 o, in vec2 fc){ o = vec4(1.0,0.0,0.0,1.0); }";
+        let pr = probe_pixels(
+            &RenderParams {
+                source: body.into(),
+                lang: None,
+                width: 16,
+                height: 16,
+                time: 0.0,
+                mouse: [0.0; 4],
+            },
+            &[(4, 4), (8, 8)],
+        )
+        .expect("probe ok");
+        assert_eq!(pr.samples.len(), 2);
+        assert!(pr.samples[0].rgba[0] > 200 && pr.samples[0].rgba[1] < 50);
+        assert_eq!(
+            &pr.crop_png[0..8],
             &[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
         );
     }
