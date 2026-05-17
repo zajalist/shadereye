@@ -27,10 +27,13 @@
       var(--bg-deep);
   }
   .panel{
-    width:860px;background:var(--bg-panel);
+    width:860px;height:528px;background:var(--bg-panel);
     border:1px solid var(--border-mid);border-radius:8px;overflow:hidden;
+    display:flex;flex-direction:column;
   }
+  .panel.full{height:auto;display:block}
   .head{
+    flex:0 0 auto;
     display:flex;align-items:center;gap:16px;
     padding:18px 24px;border-bottom:1px solid var(--border-mid);
     background:var(--bg-base);
@@ -48,8 +51,11 @@
     margin-left:auto;font-size:10.5px;font-weight:600;letter-spacing:.22em;
     text-transform:uppercase;color:var(--text-3)
   }
-  #log{padding:22px 26px 28px;font-family:var(--mono);
+  #log{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;
+        padding:22px 26px 28px;font-family:var(--mono);
         font-size:13px;line-height:1.85;color:var(--text-2)}
+  #log::-webkit-scrollbar{width:0;height:0;display:none}
+  .panel.full #log{overflow:visible;flex:none;scroll-behavior:auto}
   .row{margin:0;padding:5px 0;white-space:pre-wrap;word-break:break-word;
        opacity:0;transform:translateY(6px);
        animation:in .5s var(--ease) forwards}
@@ -97,7 +103,7 @@
   .diff.add{color:#7fc8a6;background:rgba(77,179,138,.07)}
   .diff .g{color:var(--text-3);user-select:none}
 
-  figure.view{margin:14px 0 6px;width:300px}
+  figure.view{margin:14px 0 6px;width:248px}
   .vlabel{
     display:block;font-family:var(--ui);font-size:9.5px;letter-spacing:.2em;
     text-transform:uppercase;color:var(--text-3);margin-bottom:8px
@@ -169,22 +175,29 @@ var STEPS=[
  {t:300,type:'block',html:'<div class="done"><b>resolved</b><span>integer division replaced with float division; pattern restored.</span></div>'}
 ];
 var log=document.getElementById('log');
+// Keep the newest message in view: the panel is a fixed rectangle, the log
+// scrolls so the latest content is always pinned to the bottom.
+function sd(){log.scrollTop=log.scrollHeight;}
 function typeLine(html,done){
   var tmp=document.createElement('div');tmp.innerHTML=html;
   var plain=tmp.textContent;
   var el=document.createElement('div');el.className='row';
   el.style.animation='none';el.style.opacity='1';el.style.transform='none';
-  log.appendChild(el);
+  log.appendChild(el);sd();
   var cur=document.createElement('span');cur.className='cursor';el.appendChild(cur);
   var i=0,speed=Math.max(7,Math.min(15,520/plain.length));
   (function tick(){
-    if(i<=plain.length){cur.insertAdjacentText('beforebegin',plain.charAt(i-1)||'');i++;setTimeout(tick,speed);}
-    else{el.innerHTML=html;done();}
+    if(i<=plain.length){cur.insertAdjacentText('beforebegin',plain.charAt(i-1)||'');i++;sd();setTimeout(tick,speed);}
+    else{el.innerHTML=html;sd();done();}
   })();
 }
 function revealBlock(html,done){
   var el=document.createElement('div');el.className='row';el.innerHTML=html;
-  log.appendChild(el);setTimeout(done,130);
+  log.appendChild(el);sd();
+  // image rows grow after the embedded thumbnail loads — re-pin on load.
+  var im=el.querySelector('img');
+  if(im&&!im.complete){im.addEventListener('load',sd);im.addEventListener('error',sd);}
+  setTimeout(function(){sd();done();},130);
 }
 var idx=0;
 function run(){
@@ -203,14 +216,20 @@ function renderStatic(n){
     var last=log.lastElementChild;
     if(last){var cur=document.createElement('span');cur.className='cursor';last.appendChild(cur);}
   }
+  sd();
 }
 function start(){
+  var panel=document.querySelector('.panel');
   var stepsParam=new URLSearchParams(location.search).get('steps');
   if(stepsParam!==null){
     var n=Math.max(0,Math.min(STEPS.length,parseInt(stepsParam,10)||0));
-    renderStatic(n);return;
+    renderStatic(n);
+    // wait for any thumbnail to load, then pin to bottom for the captured frame
+    var im=log.querySelector('img');
+    if(im&&!im.complete){im.addEventListener('load',sd);}
+    sd();return;
   }
-  if(location.hash==='#static'){renderStatic();return;}
+  if(location.hash==='#static'){panel.classList.add('full');renderStatic();return;}
   setTimeout(run,500);
 }
 if(document.fonts&&document.fonts.ready){

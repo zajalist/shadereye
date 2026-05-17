@@ -70,7 +70,8 @@ fail in-browser (e.g. a missing `precision` qualifier).
 
 ## Install
 
-From source (installs the `shadereye-mcp` binary from the workspace):
+From source (installs the `shadereye-mcp` binary onto your PATH from the
+workspace):
 
 ```sh
 cargo install --git https://github.com/zajalist/shadereye shadereye-mcp
@@ -79,25 +80,78 @@ cargo install --git https://github.com/zajalist/shadereye shadereye-mcp
 Or download a prebuilt binary for Linux, Windows, or macOS from the
 [GitHub Releases](https://github.com/zajalist/shadereye/releases) page.
 
-## Use with Claude Code
+The optional `SHADERTOY_API_KEY` is a free key from
+[shadertoy.com](https://www.shadertoy.com/) and is only needed for the
+`shadertoy_get` / `shadertoy_search` tools. Every other tool works without it,
+and the Shadertoy tools return a graceful error if the key is absent.
 
-Add `shadereye` to your MCP server config:
+## Connect your MCP client
 
-```json
-{
-  "mcpServers": {
-    "shadereye": {
-      "command": "shadereye-mcp",
-      "env": { "SHADERTOY_API_KEY": "your-free-key" }
-    }
-  }
-}
+`shadereye-mcp` is a stdio MCP server. Every client below talks to the same
+binary, so make sure `shadereye-mcp` is installed and on your PATH (see
+[Install](#install)) first. Pick your client, drop the snippet into the listed
+file, restart the client.
+
+**Claude Code** - add it with one command:
+
+```bash
+claude mcp add shadereye -- shadereye-mcp
 ```
 
-The `SHADERTOY_API_KEY` is a free key from
-[shadertoy.com](https://www.shadertoy.com/) and is only needed for the
-`shadertoy_get` / `shadertoy_search` tools - every other tool works without it,
-and the Shadertoy tools return a graceful error if the key is absent.
+For the Shadertoy tools, pass the key through:
+`claude mcp add shadereye -e SHADERTOY_API_KEY=your-key -- shadereye-mcp`.
+Or commit a project `.mcp.json`:
+
+```json
+{ "mcpServers": { "shadereye": { "command": "shadereye-mcp" } } }
+```
+
+**Claude Desktop** - `claude_desktop_config.json` (macOS
+`~/Library/Application Support/Claude/`, Windows `%APPDATA%\Claude\`):
+
+```json
+{ "mcpServers": { "shadereye": { "command": "shadereye-mcp", "env": { "SHADERTOY_API_KEY": "your-key" } } } }
+```
+
+**Cursor** - `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
+
+```json
+{ "mcpServers": { "shadereye": { "command": "shadereye-mcp" } } }
+```
+
+**opencode** - `opencode.json` (project) or
+`~/.config/opencode/opencode.json`:
+
+```json
+{ "$schema": "https://opencode.ai/config.json", "mcp": { "shadereye": { "type": "local", "command": ["shadereye-mcp"], "enabled": true } } }
+```
+
+**VS Code (GitHub Copilot)** - `.vscode/mcp.json`:
+
+```json
+{ "servers": { "shadereye": { "type": "stdio", "command": "shadereye-mcp" } } }
+```
+
+**Windsurf** - `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{ "mcpServers": { "shadereye": { "command": "shadereye-mcp" } } }
+```
+
+**Zed** - `settings.json`:
+
+```json
+{ "context_servers": { "shadereye": { "command": { "path": "shadereye-mcp", "args": [] } } } }
+```
+
+**Cline / Roo Code** (VS Code) - their MCP settings JSON:
+
+```json
+{ "mcpServers": { "shadereye": { "command": "shadereye-mcp" } } }
+```
+
+**Any other stdio MCP client** - point it at the `shadereye-mcp` binary as a
+stdio server; optional env `SHADERTOY_API_KEY` for the Shadertoy tools.
 
 ## Example transcript (native): Claude fixes a broken raymarcher
 
