@@ -314,6 +314,49 @@ pub fn render(params: &RenderParams) -> Result<RenderOutput, RenderError> {
     })
 }
 
+/// Render `frames` evenly spaced over [t0, t1] and tile them left→right into one PNG.
+pub fn render_animation(
+    base: &RenderParams,
+    t0: f32,
+    t1: f32,
+    frames: u32,
+) -> Result<RenderOutput, RenderError> {
+    let frames = frames.max(1);
+    let mut tiles = Vec::new();
+    for i in 0..frames {
+        let t = if frames == 1 {
+            t0
+        } else {
+            t0 + (t1 - t0) * (i as f32 / (frames - 1) as f32)
+        };
+        let p = RenderParams {
+            time: t,
+            ..base.clone()
+        };
+        tiles.push(render(&p)?);
+    }
+    let fw = base.width;
+    let fh = base.height;
+    let total_w = fw * frames;
+    let mut canvas = image::RgbaImage::new(total_w, fh);
+    for (i, tile) in tiles.iter().enumerate() {
+        let t = image::RgbaImage::from_raw(fw, fh, tile.rgba.clone()).unwrap();
+        image::imageops::overlay(&mut canvas, &t, (i as u32 * fw) as i64, 0);
+    }
+    let rgba = canvas.clone().into_raw();
+    let mut png = Vec::new();
+    image::DynamicImage::ImageRgba8(canvas)
+        .write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png)
+        .map_err(|e| RenderError::Gpu(e.to_string()))?;
+    Ok(RenderOutput {
+        width: total_w,
+        height: fh,
+        png,
+        rgba,
+        backend: tiles[0].backend.clone(),
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -341,5 +384,31 @@ mod tests {
         let px = out.pixel(8, 8);
         assert!(px[0] > 200 && px[1] < 50 && px[2] < 50, "got {px:?}");
         assert!(!out.backend.is_empty());
+    }
+
+    #[test]
+    fn animation_makes_a_montage_wider_than_one_frame() {
+        let body =
+            "void mainImage(out vec4 o, in vec2 fc){ o = vec4(fract(iTime), 0.0, 0.0, 1.0); }";
+        let m = render_animation(
+            &RenderParams {
+                source: body.into(),
+                lang: None,
+                width: 16,
+                height: 16,
+                time: 0.0,
+                mouse: [0.0; 4],
+            },
+            0.0,
+            1.0,
+            4,
+        )
+        .expect("anim ok");
+        // 4 frames laid horizontally => width >= 4*16
+        assert!(m.width >= 64, "montage width {}", m.width);
+        assert_eq!(
+            &m.png[0..8],
+            &[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
+        );
     }
 }
