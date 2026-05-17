@@ -1,0 +1,14 @@
+[package]
+name = "shadereye-render"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+shadereye-compile = { path = "../shadereye-compile" }
+wgpu.workspace = true
+pollster.workspace = true
+bytemuck.workspace = true
+image.workspace = true
+serde.workspace = true
+thiserror.workspace = true

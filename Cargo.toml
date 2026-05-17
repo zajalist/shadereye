@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
   "crates/shadereye-compile",
+  "crates/shadereye-render",
 ]
 
 [workspace.package]
@@ -12,7 +13,7 @@ version = "0.1.0"
 
 [workspace.dependencies]
 naga = { version = "23", features = ["glsl-in", "glsl-out", "wgsl-in", "wgsl-out", "spv-in", "spv-out"] }
-wgpu = "23"
+wgpu = { version = "23", features = ["glsl"] }
 pollster = "0.3"
 bytemuck = { version = "1", features = ["derive"] }
 image = { version = "0.25", default-features = false, features = ["png"] }
