@@ -1,7 +1,7 @@
-# shadereye — Design Spec
+# shadereye - Design Spec
 
 **Date:** 2026-05-16
-**Status:** Implemented — v1 shipped
+**Status:** Implemented - v1 shipped
 **Repo:** `github.com/zajalist/shadereye` (public) · local `D:\Projects\shadereye`
 
 > This is the original design document. It describes the full intended surface
@@ -22,14 +22,14 @@ closes this perception gap and connects the model to existing shader knowledge
 
 A small, single-binary **MCP server** that gives an LLM:
 
-1. **Perception** — render shaders to images the model can actually view.
-2. **Debugging aids** — animation montages, expression visualization, pixel
+1. **Perception** - render shaders to images the model can actually view.
+2. **Debugging aids** - animation montages, expression visualization, pixel
    probing, image diffing.
-3. **Correctness loop** — structured compiler errors and golden-image testing.
-4. **Runtime ground truth** — execute the shader in a real browser GPU pipeline
+3. **Correctness loop** - structured compiler errors and golden-image testing.
+4. **Runtime ground truth** - execute the shader in a real browser GPU pipeline
    (WebGL2/WebGPU) and capture *all* console output, JS exceptions, and
    driver-level shader/program logs.
-5. **Knowledge connection** — Shadertoy import/search and a bundled+online
+5. **Knowledge connection** - Shadertoy import/search and a bundled+online
    reference.
 
 Multi-language: GLSL, WGSL, HLSL (and SPIR-V) via `naga`, with cross-translation.
@@ -115,7 +115,7 @@ ground-truth runtime behaviour the static naga check cannot produce.
 
 ### MCP Resources
 
-`shadereye://reference/...` — exposes the bundled curated reference (GLSL/WGSL
+`shadereye://reference/...` - exposes the bundled curated reference (GLSL/WGSL
 builtins, Shadertoy uniform conventions, common gotchas/patterns) so the model
 can browse it directly.
 
@@ -124,18 +124,18 @@ can browse it directly.
 Cargo workspace, each lib pure (input → output, no MCP coupling) and
 independently unit-testable:
 
-- `shadereye-mcp` — binary; `rmcp` wiring and tool/resource registration only.
-- `shadereye-compile` — naga validate/translate, language detection,
+- `shadereye-mcp` - binary; `rmcp` wiring and tool/resource registration only.
+- `shadereye-compile` - naga validate/translate, language detection,
   Shadertoy→harness source adaptation.
-- `shadereye-render` — wgpu headless device, fragment harness, montage builder,
+- `shadereye-render` - wgpu headless device, fragment harness, montage builder,
   pixel probe, image diff. Pure: (source, params) → image/data.
-- `shadereye-browser` — generates the WebGL2/WebGPU HTML+JS harness, manages a
+- `shadereye-browser` - generates the WebGL2/WebGPU HTML+JS harness, manages a
   headless system Chromium over CDP (`chromiumoxide`), collects console/JS/GL/GPU
   error transcript + canvas screenshot. Pure: (source, params) → (image,
   transcript).
-- `shadereye-shadertoy` — Shadertoy API client + harness adaptation of fetched
+- `shadereye-shadertoy` - Shadertoy API client + harness adaptation of fetched
   passes.
-- `shadereye-reference` — embedded reference data, lookup, optional best-effort
+- `shadereye-reference` - embedded reference data, lookup, optional best-effort
   web fetch.
 
 Boundary test: each lib can be exercised and golden-tested without starting an
@@ -144,7 +144,7 @@ MCP server.
 ## Error Handling
 
 - Shader compile/parse errors are **returned as structured tool results**, never
-  panics — the model reads them and self-corrects.
+  panics - the model reads them and self-corrects.
 - Native renderer: GPU adapter → software fallback; the chosen backend is
   reported in every render result.
 - Browser backend: if no system Chromium is found it returns an actionable
@@ -168,16 +168,16 @@ MCP server.
 
 ## Showcase Deliverables
 
-This is a public portfolio project — completeness matters:
+This is a public portfolio project - completeness matters:
 
 - **README**: the "LLMs are blind to shaders" hook; screenshots/GIF of the
   compile→see→fix loop; install (`cargo install` and prebuilt release binaries);
-  Claude Code MCP config snippet; tool reference table; two example transcripts —
+  Claude Code MCP config snippet; tool reference table; two example transcripts -
   "Claude fixes a broken raymarcher" (native) and "Claude pastes a Shadertoy
   shader, runs it in-browser, reads the real WebGL compile log + screenshot, and
   fixes the precision error" (browser backend).
-- `examples/` — GLSL + WGSL example shaders, reused by tests and the README.
-- `docs/gallery.md` — rendered outputs.
+- `examples/` - GLSL + WGSL example shaders, reused by tests and the README.
+- `docs/gallery.md` - rendered outputs.
 - GitHub Actions: CI workflow + release workflow building cross-platform
   binaries.
 - `LICENSE` (MIT), short `CONTRIBUTING.md`.

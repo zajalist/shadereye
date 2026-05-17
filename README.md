@@ -6,12 +6,13 @@
 lets a coding LLM (Claude Code and peers) compile, render, debug,
 browser-execute, test, and look up shaders across GLSL, WGSL, and HLSL.
 
-![compile → see → fix loop](media/loop.gif)
+![compile, see, fix loop](media/loop.gif)
 
-*Claude renders `examples/raymarch_broken.glsl`, sees the dead blue channel,
-looks up the integer-division gotcha, fixes the line, and re-renders — all
-through shadereye's MCP tools. ([animation source](media/loop.tape) ·
-[recording kit](docs/DEMO.md))*
+*The agent renders `examples/swirl.glsl`, sees a flat colour wash, looks up the
+integer-division gotcha, fixes `float amp = 1 / 2;` to `1.0 / 2.0`, and
+re-renders to the restored plasma swirl - all through shadereye's MCP tools.
+Static fallback: [`media/terminal.png`](media/terminal.png). ([recording
+kit](docs/DEMO.md))*
 
 ## The problem
 
@@ -25,7 +26,7 @@ language references).
 `shadereye` closes that loop: the model renders a shader to an image it can
 actually view, probes pixels, runs the shader in a real browser GPU pipeline to
 read the driver's compile log, and looks up the gotcha that explains what went
-wrong — then fixes it and re-renders.
+wrong, then fixes it and re-renders.
 
 ## What it does
 
@@ -50,18 +51,18 @@ runtime ground truth, and knowledge connection:
 
 `shadereye` ships two complementary render backends:
 
-- **Native (`wgpu`)** — the fast, deterministic default. Headless offscreen
+- **Native (`wgpu`)** - the fast, deterministic default. Headless offscreen
   render with a **software fallback** (Vulkan software / DX WARP), so it works
   in CI and on machines with no GPU. Always reports which adapter was used.
   Best for tight compile→see→fix loops and golden tests.
-- **Browser** — ground truth. Drives a headless **system Chromium** over CDP and
+- **Browser** - ground truth. Drives a headless **system Chromium** over CDP and
   runs the shader in a real **WebGL2 / GLSL ES 3.00** pipeline that matches
   Shadertoy's actual runtime. Captures the *real* driver output:
   `getShaderInfoLog`, `getProgramInfoLog`, `gl.getError()` codes, every
   `console.*` line, uncaught JS exceptions, plus a canvas screenshot.
 
 naga's static validation (native) and the browser's runtime errors catch
-different classes of problems — a shader can pass native validation and still
+different classes of problems: a shader can pass native validation and still
 fail in-browser (e.g. a missing `precision` qualifier).
 
 > The browser backend needs a system Chrome/Chromium. shadereye auto-detects it;
@@ -95,7 +96,7 @@ Add `shadereye` to your MCP server config:
 
 The `SHADERTOY_API_KEY` is a free key from
 [shadertoy.com](https://www.shadertoy.com/) and is only needed for the
-`shadertoy_get` / `shadertoy_search` tools — every other tool works without it,
+`shadertoy_get` / `shadertoy_search` tools - every other tool works without it,
 and the Shadertoy tools return a graceful error if the key is absent.
 
 ## Example transcript (native): Claude fixes a broken raymarcher
@@ -113,11 +114,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 }
 ```
 
-The returned PNG is a flat red↔green gradient with **no blue at all** — the
+The returned PNG is a flat red↔green gradient with **no blue at all** - the
 blue channel is dead everywhere. Claude calls
 `lookup_reference("integer division")` and gets back the bundled gotcha:
 
-> **integer-division** — In GLSL, `1/2 == 0` (integer division). Use `1.0/2.0`
+> **integer-division** - In GLSL, `1/2 == 0` (integer division). Use `1.0/2.0`
 > for float results.
 
 That explains the dead blue channel: `float t = 1 / 2;` evaluates the
@@ -148,13 +149,13 @@ ERROR: 0:2: '' : No precision specified for (float)
 
 Claude calls `lookup_reference("precision")` and gets:
 
-> **webgl-precision** — WebGL2/GLSL ES requires an explicit precision qualifier
-> (e.g. `precision highp float;`). naga/desktop GLSL does not — shaders that
+> **webgl-precision** - WebGL2/GLSL ES requires an explicit precision qualifier
+> (e.g. `precision highp float;`). naga/desktop GLSL does not - shaders that
 > work in shadereye native may fail in-browser without it.
 
 Claude prepends `precision highp float;`, re-runs `run_in_browser`, and now
 `compiled_ok: true` with a clean screenshot. The native backend never would
-have surfaced this — only running it in a real browser GPU pipeline did.
+have surfaced this - only running it in a real browser GPU pipeline did.
 
 ## Tool reference
 
@@ -176,13 +177,14 @@ have surfaced this — only running it in a real browser GPU pipeline did.
 
 Real output from the bundled examples, rendered through the `shadereye-render`
 engine (and a real browser WebGL2 pipeline). Regenerate any of these with the
-`dump_frames` example — see [`docs/gallery.md`](docs/gallery.md).
+`dump_frames` example - see [`docs/gallery.md`](docs/gallery.md).
 
 | Asset | What it shows |
 |---|---|
-| ![plasma](media/plasma.gif) | [`media/plasma.gif`](media/plasma.gif) — `examples/plasma.glsl` rendered native (`wgpu`), one full `iTime` loop. ([mp4](media/plasma.mp4)) |
-| ![webgl](media/webgl_demo.gif) | [`media/webgl_demo.gif`](media/webgl_demo.gif) — the same plasma in a real **WebGL2 / GLSL ES 3.00** browser pipeline. ([mp4](media/webgl_demo.mp4) · [page](media/webgl_demo.html)) |
-| ![raymarch fix](media/raymarch-fix.png) | [`media/raymarch-fix.png`](media/raymarch-fix.png) — `examples/raymarch_broken.glsl` before/after the integer-division fix: no blue → blue restored. |
+| ![plasma](media/plasma.gif) | [`media/plasma.gif`](media/plasma.gif) - `examples/plasma.glsl` rendered native (`wgpu`), one full `iTime` loop. ([mp4](media/plasma.mp4)) |
+| ![webgl](media/webgl_demo.gif) | [`media/webgl_demo.gif`](media/webgl_demo.gif) - the same plasma in a real **WebGL2 / GLSL ES 3.00** browser pipeline. ([mp4](media/webgl_demo.mp4) · [page](media/webgl_demo.html)) |
+| ![raymarch fix](media/raymarch-fix.png) | [`media/raymarch-fix.png`](media/raymarch-fix.png) - `examples/raymarch_broken.glsl` before/after the integer-division fix: no blue → blue restored. |
+| ![swirl loop](media/terminal.png) | [`media/loop.gif`](media/loop.gif) - the agent's compile/see/fix loop on `examples/swirl.glsl`: the `1 / 2` integer-division bug flattens the plasma, the `1.0 / 2.0` fix restores the swirl. ([mp4](media/loop.mp4) · [static](media/terminal.png)) |
 
 See [`docs/DEMO.md`](docs/DEMO.md) for the MCP config, a vetted demo prompt, a
 60-second shot list, and recording instructions (asciinema / vhs / OBS).

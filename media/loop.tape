@@ -1,4 +1,4 @@
-# shadereye terminal-cast — regenerate with: vhs media/loop.tape
+# shadereye terminal-cast - regenerate with: vhs media/loop.tape
 # Reproduces the compile -> see -> fix -> see loop from media/loop.gif.
 # Requires charmbracelet/vhs (https://github.com/charmbracelet/vhs).
 

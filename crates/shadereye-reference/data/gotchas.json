@@ -1,5 +1,5 @@
 [
-  {"name":"webgl-precision","note":"WebGL2/GLSL ES requires an explicit precision qualifier (e.g. 'precision highp float;'). naga/desktop GLSL does not — shaders that work in shadereye native may fail in-browser without it."},
+  {"name":"webgl-precision","note":"WebGL2/GLSL ES requires an explicit precision qualifier (e.g. 'precision highp float;'). naga/desktop GLSL does not - shaders that work in shadereye native may fail in-browser without it."},
   {"name":"integer-division","note":"In GLSL, 1/2 == 0 (integer division). Use 1.0/2.0 for float results."},
   {"name":"shadertoy-uniforms","note":"Shadertoy provides iResolution(vec3), iTime(float), iTimeDelta, iFrame(int), iMouse(vec4), iChannel0..3. Entry point is void mainImage(out vec4 fragColor, in vec2 fragCoord)."},
   {"name":"wgsl-no-implicit-cast","note":"WGSL has no implicit int/float conversion. Write f32(i) / i32(f) explicitly."}

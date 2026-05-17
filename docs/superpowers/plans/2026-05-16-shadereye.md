@@ -12,7 +12,7 @@
 
 ## Notes for the implementing engineer
 
-- **External API drift:** `rmcp`, `naga`, and `wgpu` change APIs between minor versions. The crate versions pinned below were correct at planning time. If `cargo build` fails on an external API, run `cargo doc --open -p <crate>` (or read docs.rs for the *exact pinned version*) and adapt the call site. Do **not** change our own types/signatures to work around this — only the external call.
+- **External API drift:** `rmcp`, `naga`, and `wgpu` change APIs between minor versions. The crate versions pinned below were correct at planning time. If `cargo build` fails on an external API, run `cargo doc --open -p <crate>` (or read docs.rs for the *exact pinned version*) and adapt the call site. Do **not** change our own types/signatures to work around this - only the external call.
 - **Our logic is fully specified.** Every test and every function body for shadereye's own code is given. Do not invent behavior.
 - **Commit after every task** with the message shown. Run `cargo fmt` and `cargo clippy --all-targets -- -D warnings` before each commit; fix warnings.
 - Work top-to-bottom. Later tasks depend on earlier types.
@@ -129,7 +129,7 @@ git commit -m "chore: workspace skeleton"
 
 ---
 
-## Task 2: `shadereye-compile` — language detection
+## Task 2: `shadereye-compile` - language detection
 
 **Files:**
 - Create: `crates/shadereye-compile/Cargo.toml`, `crates/shadereye-compile/src/lib.rs`
@@ -216,7 +216,7 @@ git commit -m "feat(compile): shader language detection"
 
 ---
 
-## Task 3: `shadereye-compile` — Shadertoy → full GLSL wrapping
+## Task 3: `shadereye-compile` - Shadertoy → full GLSL wrapping
 
 **Files:**
 - Modify: `crates/shadereye-compile/src/lib.rs`
@@ -248,7 +248,7 @@ git commit -m "feat(compile): shader language detection"
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cargo test -p shadereye-compile wraps_shadertoy`
-Expected: FAIL — `wrap_shadertoy_fragment` not found.
+Expected: FAIL - `wrap_shadertoy_fragment` not found.
 
 - [ ] **Step 3: Implement** (add to `lib.rs`, above `#[cfg(test)]`)
 
@@ -305,7 +305,7 @@ git commit -m "feat(compile): wrap Shadertoy mainImage into full GLSL"
 
 ---
 
-## Task 4: `shadereye-compile` — validation via naga
+## Task 4: `shadereye-compile` - validation via naga
 
 **Files:**
 - Modify: `crates/shadereye-compile/src/lib.rs`
@@ -333,7 +333,7 @@ git commit -m "feat(compile): wrap Shadertoy mainImage into full GLSL"
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cargo test -p shadereye-compile validates_good_wgsl`
-Expected: FAIL — `validate` / `ValidationReport` not found.
+Expected: FAIL - `validate` / `ValidationReport` not found.
 
 - [ ] **Step 3: Implement** (add to `lib.rs`)
 
@@ -418,7 +418,7 @@ git commit -m "feat(compile): naga-backed validation with structured diagnostics
 
 ---
 
-## Task 5: `shadereye-compile` — translation
+## Task 5: `shadereye-compile` - translation
 
 **Files:**
 - Modify: `crates/shadereye-compile/src/lib.rs`
@@ -438,7 +438,7 @@ git commit -m "feat(compile): naga-backed validation with structured diagnostics
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cargo test -p shadereye-compile translates_wgsl_to_glsl`
-Expected: FAIL — `translate` not found.
+Expected: FAIL - `translate` not found.
 
 - [ ] **Step 3: Implement**
 
@@ -509,7 +509,7 @@ git commit -m "feat(compile): cross-language translation via naga IR"
 
 ---
 
-## Task 6: `shadereye-render` — headless wgpu device + fullscreen pass
+## Task 6: `shadereye-render` - headless wgpu device + fullscreen pass
 
 **Files:**
 - Create: `crates/shadereye-render/Cargo.toml`, `crates/shadereye-render/src/lib.rs`
@@ -569,7 +569,7 @@ mod tests {
 - [ ] **Step 3: Run test to verify it fails**
 
 Run: `cargo test -p shadereye-render renders_solid_color_shader`
-Expected: FAIL — `render`/`RenderParams` not found.
+Expected: FAIL - `render`/`RenderParams` not found.
 
 - [ ] **Step 4: Implement** the device + render pipeline in `lib.rs` (above `#[cfg(test)]`)
 
@@ -845,7 +845,7 @@ git commit -m "feat(render): headless wgpu fullscreen fragment render"
 
 ---
 
-## Task 7: `shadereye-render` — animation contact sheet
+## Task 7: `shadereye-render` - animation contact sheet
 
 **Files:**
 - Modify: `crates/shadereye-render/src/lib.rs`
@@ -868,7 +868,7 @@ git commit -m "feat(render): headless wgpu fullscreen fragment render"
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cargo test -p shadereye-render animation_makes_a_montage`
-Expected: FAIL — `render_animation` not found.
+Expected: FAIL - `render_animation` not found.
 
 - [ ] **Step 3: Implement**
 
@@ -915,7 +915,7 @@ git commit -m "feat(render): animation contact-sheet montage"
 
 ---
 
-## Task 8: `shadereye-render` — expression visualizer + pixel probe
+## Task 8: `shadereye-render` - expression visualizer + pixel probe
 
 **Files:**
 - Modify: `crates/shadereye-render/src/lib.rs`
@@ -949,7 +949,7 @@ git commit -m "feat(render): animation contact-sheet montage"
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cargo test -p shadereye-render visualize_expression_grayscale`
-Expected: FAIL — symbols not found.
+Expected: FAIL - symbols not found.
 
 - [ ] **Step 3: Implement**
 
@@ -1019,7 +1019,7 @@ git commit -m "feat(render): expression visualizer and pixel probe"
 
 ---
 
-## Task 9: `shadereye-render` — image diff / golden test
+## Task 9: `shadereye-render` - image diff / golden test
 
 **Files:**
 - Create: `crates/shadereye-render/src/diff.rs`
@@ -1061,7 +1061,7 @@ mod tests {
 - [ ] **Step 3: Run test to verify it fails**
 
 Run: `cargo test -p shadereye-render --lib diff`
-Expected: FAIL — `diff_images` not found.
+Expected: FAIL - `diff_images` not found.
 
 - [ ] **Step 4: Implement** in `diff.rs` (above `#[cfg(test)]`)
 
@@ -1133,7 +1133,7 @@ git commit -m "feat(render): image diff and golden-test comparison"
 
 ---
 
-## Task 10: `shadereye-browser` — HTML harness generator
+## Task 10: `shadereye-browser` - HTML harness generator
 
 **Files:**
 - Create: `crates/shadereye-browser/Cargo.toml`, `crates/shadereye-browser/src/harness.rs`, `crates/shadereye-browser/src/lib.rs`
@@ -1184,7 +1184,7 @@ mod tests {
 - [ ] **Step 3: Run test to verify it fails**
 
 Run: `cargo test -p shadereye-browser html_embeds`
-Expected: FAIL — `generate_html` not found.
+Expected: FAIL - `generate_html` not found.
 
 - [ ] **Step 4: Implement** `generate_html` in `harness.rs`
 
@@ -1262,7 +1262,7 @@ git commit -m "feat(browser): WebGL2 GLSL-ES harness HTML generator"
 
 ---
 
-## Task 11: `shadereye-browser` — drive Chromium over CDP
+## Task 11: `shadereye-browser` - drive Chromium over CDP
 
 **Files:**
 - Modify: `crates/shadereye-browser/src/lib.rs`
@@ -1446,7 +1446,7 @@ pub fn run_in_browser(p: &BrowserRunParams) -> Result<BrowserTranscript, Browser
 }
 ```
 
-> API note: `chromiumoxide` event type paths and `ScreenshotParams` builder differ across 0.5–0.7. Keep `BrowserTranscript`/`run_in_browser` signatures; adapt CDP calls to the pinned version using `cargo doc -p chromiumoxide`.
+> API note: `chromiumoxide` event type paths and `ScreenshotParams` builder differ across 0.5-0.7. Keep `BrowserTranscript`/`run_in_browser` signatures; adapt CDP calls to the pinned version using `cargo doc -p chromiumoxide`.
 
 - [ ] **Step 4: Build (no network/browser test in unit suite)**
 
@@ -1479,7 +1479,7 @@ git commit -m "feat(browser): run shader in headless Chromium, capture console+G
 
 ---
 
-## Task 12: `shadereye-shadertoy` — client + harness adaptation
+## Task 12: `shadereye-shadertoy` - client + harness adaptation
 
 **Files:**
 - Create: `crates/shadereye-shadertoy/Cargo.toml`, `crates/shadereye-shadertoy/src/lib.rs`
@@ -1521,7 +1521,7 @@ pub struct ShadertoyShader {
 
 #[derive(Debug, thiserror::Error)]
 pub enum ShadertoyError {
-    #[error("SHADERTOY_API_KEY not set — get a free app key at shadertoy.com/myapps")]
+    #[error("SHADERTOY_API_KEY not set - get a free app key at shadertoy.com/myapps")]
     NoKey,
     #[error("shader not found: {0}")]
     NotFound(String),
@@ -1631,7 +1631,7 @@ git commit -m "feat(shadertoy): API client for get/search with graceful no-key e
 
 ---
 
-## Task 13: `shadereye-reference` — bundled reference + lookup
+## Task 13: `shadereye-reference` - bundled reference + lookup
 
 **Files:**
 - Create: `crates/shadereye-reference/Cargo.toml`, `crates/shadereye-reference/src/lib.rs`, `crates/shadereye-reference/data/gotchas.json`, `crates/shadereye-reference/data/glsl.json`
@@ -1667,7 +1667,7 @@ tokio.workspace = true
 
 ```json
 [
-  {"name":"webgl-precision","note":"WebGL2/GLSL ES requires an explicit precision qualifier (e.g. 'precision highp float;'). naga/desktop GLSL does not — shaders that work in shadereye native may fail in-browser without it."},
+  {"name":"webgl-precision","note":"WebGL2/GLSL ES requires an explicit precision qualifier (e.g. 'precision highp float;'). naga/desktop GLSL does not - shaders that work in shadereye native may fail in-browser without it."},
   {"name":"integer-division","note":"In GLSL, 1/2 == 0 (integer division). Use 1.0/2.0 for float results."},
   {"name":"shadertoy-uniforms","note":"Shadertoy provides iResolution(vec3), iTime(float), iTimeDelta, iFrame(int), iMouse(vec4), iChannel0..3. Entry point is void mainImage(out vec4 fragColor, in vec2 fragCoord)."},
   {"name":"wgsl-no-implicit-cast","note":"WGSL has no implicit int/float conversion. Write f32(i) / i32(f) explicitly."}
@@ -1747,7 +1747,7 @@ git commit -m "feat(reference): bundled offline GLSL/gotcha reference + lookup"
 
 ---
 
-## Task 14: `shadereye-mcp` — binary skeleton + first tool
+## Task 14: `shadereye-mcp` - binary skeleton + first tool
 
 **Files:**
 - Create: `crates/shadereye-mcp/Cargo.toml`, `crates/shadereye-mcp/src/main.rs`, `crates/shadereye-mcp/src/tools.rs`
@@ -1780,7 +1780,7 @@ anyhow.workspace = true
 base64 = "0.22"
 ```
 
-- [ ] **Step 2: Implement `tools.rs`** — pure adapter functions returning JSON-able results. These are unit-testable without MCP.
+- [ ] **Step 2: Implement `tools.rs`** - pure adapter functions returning JSON-able results. These are unit-testable without MCP.
 
 ```rust
 //! Tool implementations: thin adapters over the shadereye libraries.
@@ -1842,7 +1842,7 @@ mod tests {
 Run: `cargo test -p shadereye-mcp`
 Expected: 2 passed.
 
-- [ ] **Step 4: Implement `main.rs`** — register tools with rmcp over stdio.
+- [ ] **Step 4: Implement `main.rs`** - register tools with rmcp over stdio.
 
 ```rust
 //! shadereye MCP server (stdio).
@@ -1880,7 +1880,7 @@ async fn main() -> anyhow::Result<()> {
 }
 ```
 
-> API note: rmcp 0.1 tool registration uses the `#[tool]` / `#[tool(tool_box)]` macros. Task 15 wires the actual tool methods. This step only needs to **compile and start**; verify with `cargo build -p shadereye-mcp`. If `ServiceExt`/`stdio`/`ServerHandler` paths differ in the pinned rmcp, fix imports per `cargo doc -p rmcp` — do not change tool function signatures in `tools.rs`.
+> API note: rmcp 0.1 tool registration uses the `#[tool]` / `#[tool(tool_box)]` macros. Task 15 wires the actual tool methods. This step only needs to **compile and start**; verify with `cargo build -p shadereye-mcp`. If `ServiceExt`/`stdio`/`ServerHandler` paths differ in the pinned rmcp, fix imports per `cargo doc -p rmcp` - do not change tool function signatures in `tools.rs`.
 
 - [ ] **Step 5: Build**
 
@@ -1896,7 +1896,7 @@ git commit -m "feat(mcp): server skeleton + validate/render tool adapters"
 
 ---
 
-## Task 15: `shadereye-mcp` — wire all tools via rmcp `#[tool]`
+## Task 15: `shadereye-mcp` - wire all tools via rmcp `#[tool]`
 
 **Files:**
 - Modify: `crates/shadereye-mcp/src/main.rs`, `crates/shadereye-mcp/src/tools.rs`
@@ -2077,7 +2077,7 @@ async fn main() -> anyhow::Result<()> {
 
 Add `schemars = "0.8"` to `crates/shadereye-mcp/Cargo.toml` dependencies.
 
-> API note: rmcp 0.1's macro names (`#[tool_router]`, `#[tool_handler]`, `Parameters`, `Content::image`) are stable in 0.1.x but check `cargo doc -p rmcp` for the exact `Content::image` constructor signature. Every remaining `tools::` fn MUST get a `#[tool]` wrapper — do not leave the comment as the implementation.
+> API note: rmcp 0.1's macro names (`#[tool_router]`, `#[tool_handler]`, `Parameters`, `Content::image`) are stable in 0.1.x but check `cargo doc -p rmcp` for the exact `Content::image` constructor signature. Every remaining `tools::` fn MUST get a `#[tool]` wrapper - do not leave the comment as the implementation.
 
 - [ ] **Step 5: Implement every remaining `#[tool]` method** explicitly (no shortcut). For each of `render_animation`, `visualize_expression`, `probe_pixels`, `diff_shaders`, `translate_shader`, `run_in_browser`, `shadertoy_get`, `shadertoy_search`, `lookup_reference`: define a `#[derive(Deserialize, schemars::JsonSchema)]` args struct with the same parameters as the matching `tools::` fn, and an `async fn` that calls it and wraps the result with `img_result` (image tools) or `Content::text` (text-only: `translate_shader`, `shadertoy_get`, `shadertoy_search`, `lookup_reference`).
 
@@ -2182,10 +2182,10 @@ git commit -m "test: example shaders + golden render fixtures"
 **Files:**
 - Create: `README.md`, `LICENSE`, `CONTRIBUTING.md`, `docs/gallery.md`
 
-- [ ] **Step 1: Create `LICENSE`** — MIT, copyright holder `zajalist`, year 2026. Use the standard MIT text verbatim with `Copyright (c) 2026 zajalist`.
+- [ ] **Step 1: Create `LICENSE`** - MIT, copyright holder `zajalist`, year 2026. Use the standard MIT text verbatim with `Copyright (c) 2026 zajalist`.
 
 - [ ] **Step 2: Create `README.md`** with these sections, in order:
-  1. Title + one-line pitch: "shadereye — give your coding LLM eyes for shaders."
+  1. Title + one-line pitch: "shadereye - give your coding LLM eyes for shaders."
   2. **The problem**: LLMs write shaders blind; no compile/see/fix loop.
   3. **What it does**: bullet list of the 11 tools (table from the spec).
   4. **Two render backends**: native `wgpu` (fast/CI) vs browser (real WebGL2 console+driver errors, Shadertoy-faithful).
@@ -2203,13 +2203,13 @@ git commit -m "test: example shaders + golden render fixtures"
 }
 ```
 
-  7. **Example transcript (native)**: "Claude fixes a broken raymarcher" — Claude calls `render_shader` on `examples/raymarch_broken.glsl`, sees a flat blue-less image, calls `lookup_reference("integer division")`, gets the gotcha, fixes `1/2` → `1.0/2.0`, re-renders.
+  7. **Example transcript (native)**: "Claude fixes a broken raymarcher" - Claude calls `render_shader` on `examples/raymarch_broken.glsl`, sees a flat blue-less image, calls `lookup_reference("integer division")`, gets the gotcha, fixes `1/2` → `1.0/2.0`, re-renders.
   8. **Example transcript (browser)**: paste a Shadertoy shader missing `precision`, `run_in_browser` returns the real `getShaderInfoLog`, fix, re-run.
   9. Tool reference table. 10. Roadmap (from spec). 11. License.
 
-- [ ] **Step 3: Create `CONTRIBUTING.md`** — short: how to build (`cargo build`), test (`cargo test`), the crate layout one-liner, "browser tests need Chrome / set `SHADEREYE_BROWSER`".
+- [ ] **Step 3: Create `CONTRIBUTING.md`** - short: how to build (`cargo build`), test (`cargo test`), the crate layout one-liner, "browser tests need Chrome / set `SHADEREYE_BROWSER`".
 
-- [ ] **Step 4: Create `docs/gallery.md`** — placeholder headings "Plasma", "Mandelbrot", "Raymarch" each with a sentence; note images are generated by `cargo run -p shadereye-mcp` examples (filled post-build).
+- [ ] **Step 4: Create `docs/gallery.md`** - placeholder headings "Plasma", "Mandelbrot", "Raymarch" each with a sentence; note images are generated by `cargo run -p shadereye-mcp` examples (filled post-build).
 
 - [ ] **Step 5: Commit**
 
@@ -2311,7 +2311,7 @@ Expected: all crates' tests pass (browser-network/Shadertoy tests are not in the
 Run: `cargo build --release`
 Expected: `target/release/shadereye-mcp` exists.
 
-- [ ] **Step 4: stdio tools/list smoke** (same command as Task 15 Step 6) — confirm all 11 tool names present.
+- [ ] **Step 4: stdio tools/list smoke** (same command as Task 15 Step 6) - confirm all 11 tool names present.
 
 - [ ] **Step 5: Commit any fmt/clippy fixes**
 
@@ -2363,7 +2363,7 @@ Expected: `release` workflow builds binaries and attaches them to the `v0.1.0` G
 
 ## Self-Review (completed by plan author)
 
-**Spec coverage:** validate ✔ T4 · render ✔ T6 · animation ✔ T7 · visualize ✔ T8 · probe ✔ T8 · diff/golden ✔ T9 · translate ✔ T5 · browser run + console/GL transcript ✔ T10–11 · shadertoy get/search ✔ T12 · reference (bundled) ✔ T13 · online reference fallback → **deferred**: marked roadmap in spec; bundled-only shipped in T13 (acceptable, matches "bundled is primary"; online flag is post-v1) · MCP resources for reference browsing → folded into `lookup_reference` tool for v1 (resource endpoint is a small post-v1 add; note added here so it is not lost) · crate isolation ✔ (per-crate libs) · error handling (no panics, structured) ✔ T4/T6/T10/T12 · software fallback ✔ T6 · CI software backend ✔ T18 · showcase (README/examples/gallery/CI/release/MIT) ✔ T16–20.
+**Spec coverage:** validate ✔ T4 · render ✔ T6 · animation ✔ T7 · visualize ✔ T8 · probe ✔ T8 · diff/golden ✔ T9 · translate ✔ T5 · browser run + console/GL transcript ✔ T10-11 · shadertoy get/search ✔ T12 · reference (bundled) ✔ T13 · online reference fallback → **deferred**: marked roadmap in spec; bundled-only shipped in T13 (acceptable, matches "bundled is primary"; online flag is post-v1) · MCP resources for reference browsing → folded into `lookup_reference` tool for v1 (resource endpoint is a small post-v1 add; note added here so it is not lost) · crate isolation ✔ (per-crate libs) · error handling (no panics, structured) ✔ T4/T6/T10/T12 · software fallback ✔ T6 · CI software backend ✔ T18 · showcase (README/examples/gallery/CI/release/MIT) ✔ T16-20.
 
 **Placeholder scan:** No "TBD/TODO/implement later". Task 15 Step 5 explicitly forbids leaving the "repeat pattern" comment as the implementation and requires each tool method written out.
 

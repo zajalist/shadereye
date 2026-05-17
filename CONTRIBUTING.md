@@ -19,10 +19,10 @@ opening a PR.
 
 ## Crate layout
 
-A Cargo workspace of independently-testable library crates —
+A Cargo workspace of independently-testable library crates -
 `shadereye-compile` (validate/translate), `shadereye-render` (headless `wgpu` +
 diff), `shadereye-browser` (CDP harness), `shadereye-shadertoy`,
-`shadereye-reference` — plus the thin `shadereye-mcp` binary that registers them
+`shadereye-reference` - plus the thin `shadereye-mcp` binary that registers them
 as MCP tools over stdio.
 
 ## Browser tests

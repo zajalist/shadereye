@@ -13,7 +13,7 @@ pub struct ShadertoyShader {
 
 #[derive(Debug, thiserror::Error)]
 pub enum ShadertoyError {
-    #[error("SHADERTOY_API_KEY not set — get a free app key at shadertoy.com/myapps")]
+    #[error("SHADERTOY_API_KEY not set - get a free app key at shadertoy.com/myapps")]
     NoKey,
     #[error("shader not found: {0}")]
     NotFound(String),

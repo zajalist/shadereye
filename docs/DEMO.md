@@ -26,7 +26,7 @@ Then add this to your Claude Code MCP server config
 }
 ```
 
-`SHADERTOY_API_KEY` is optional — only `shadertoy_get` / `shadertoy_search`
+`SHADERTOY_API_KEY` is optional - only `shadertoy_get` / `shadertoy_search`
 need it. Every other tool (validate, render, visualize, probe, diff,
 translate, run_in_browser, lookup_reference) works without any key.
 
@@ -58,13 +58,13 @@ the real `getShaderInfoLog` and the **webgl-precision** gotcha.
 
 | Time | Shot | Narration / on-screen |
 |---|---|---|
-| 0:00–0:06 | Title card / README top | "shadereye gives a coding LLM eyes for shaders." |
-| 0:06–0:14 | Claude Code with `/mcp` showing 11 shadereye tools | "11 MCP tools: render, probe, diff, browser, reference." |
-| 0:14–0:24 | Paste the demo prompt, first `render_shader` returns the broken image inline | "It renders the shader and *sees* a flat red-green gradient — no blue." |
-| 0:24–0:36 | `lookup_reference("integer division")` returns the bundled gotcha | "It looks up the GLSL gotcha: 1/2 is integer division → 0." |
-| 0:36–0:46 | Claude edits the line, calls `render_shader` again, blue appears | "One-line fix, re-render, blue channel restored." |
-| 0:46–0:56 | (optional) `run_in_browser` precision example | "The browser backend surfaces the real WebGL compile log." |
-| 0:56–1:00 | Cut to `media/plasma.gif` / `media/webgl_demo.gif` | "Same engine, animated, native and in a real browser GPU." |
+| 0:00-0:06 | Title card / README top | "shadereye gives a coding LLM eyes for shaders." |
+| 0:06-0:14 | Claude Code with `/mcp` showing 11 shadereye tools | "11 MCP tools: render, probe, diff, browser, reference." |
+| 0:14-0:24 | Paste the demo prompt, first `render_shader` returns the broken image inline | "It renders the shader and *sees* a flat red-green gradient - no blue." |
+| 0:24-0:36 | `lookup_reference("integer division")` returns the bundled gotcha | "It looks up the GLSL gotcha: 1/2 is integer division → 0." |
+| 0:36-0:46 | Claude edits the line, calls `render_shader` again, blue appears | "One-line fix, re-render, blue channel restored." |
+| 0:46-0:56 | (optional) `run_in_browser` precision example | "The browser backend surfaces the real WebGL compile log." |
+| 0:56-1:00 | Cut to `media/plasma.gif` / `media/webgl_demo.gif` | "Same engine, animated, native and in a real browser GPU." |
 
 ## 4. Recording instructions
 
@@ -107,7 +107,7 @@ ffmpeg -i rec.mp4 -i pal.png -lavfi "fps=12,scale=960:-1:flags=lanczos[x];[x][1:
 - **Hide secrets**: clear `SHADERTOY_API_KEY` from visible shell history /
   env panes; the key is not needed for the core demo.
 - Run from the repo root so `examples/raymarch_broken.glsl` resolves.
-- Keep narration short — the inline rendered images carry the story.
+- Keep narration short - the inline rendered images carry the story.
 - Prefer MP4 for anything over ~5 MB; ship the GIF only for embeds.
 - Do a dry run first: model phrasing varies, but the tool sequence
   (render → lookup_reference → edit → render) is stable with the prompt above.
