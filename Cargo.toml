@@ -3,6 +3,7 @@ resolver = "2"
 members = [
   "crates/shadereye-compile",
   "crates/shadereye-render",
+  "crates/shadereye-browser",
 ]
 
 [workspace.package]

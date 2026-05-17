@@ -1,0 +1,15 @@
+[package]
+name = "shadereye-browser"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+chromiumoxide.workspace = true
+tokio.workspace = true
+futures.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+which.workspace = true
+base64 = "0.22"
