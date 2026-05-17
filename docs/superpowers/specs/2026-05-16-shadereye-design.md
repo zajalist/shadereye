@@ -1,8 +1,13 @@
 # shadereye — Design Spec
 
 **Date:** 2026-05-16
-**Status:** Approved (brainstorming) — pending spec review
+**Status:** Implemented — v1 shipped
 **Repo:** `github.com/zajalist/shadereye` (public) · local `D:\Projects\shadereye`
+
+> This is the original design document. It describes the full intended surface
+> including post-v1 roadmap items. For the actually-shipped v1 tool surface, see
+> the [README](../../../README.md). Items marked "Roadmap (post-v1)" / "Scope
+> Cuts" below are intentionally not in v1.
 
 ## Problem
 

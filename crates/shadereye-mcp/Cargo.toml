@@ -1,0 +1,24 @@
+[package]
+name = "shadereye-mcp"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+default-run = "shadereye-mcp"
+
+[[bin]]
+name = "shadereye-mcp"
+path = "src/main.rs"
+
+[dependencies]
+shadereye-compile = { path = "../shadereye-compile" }
+shadereye-render = { path = "../shadereye-render" }
+shadereye-browser = { path = "../shadereye-browser" }
+shadereye-shadertoy = { path = "../shadereye-shadertoy" }
+shadereye-reference = { path = "../shadereye-reference" }
+rmcp.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+base64 = "0.22"
+schemars = "0.8"

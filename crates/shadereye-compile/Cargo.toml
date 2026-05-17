@@ -1,0 +1,10 @@
+[package]
+name = "shadereye-compile"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+naga.workspace = true
+serde.workspace = true
+thiserror.workspace = true
