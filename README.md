@@ -6,6 +6,13 @@
 lets a coding LLM (Claude Code and peers) compile, render, debug,
 browser-execute, test, and look up shaders across GLSL, WGSL, and HLSL.
 
+![compile → see → fix loop](media/loop.gif)
+
+*Claude renders `examples/raymarch_broken.glsl`, sees the dead blue channel,
+looks up the integer-division gotcha, fixes the line, and re-renders — all
+through shadereye's MCP tools. ([animation source](media/loop.tape) ·
+[recording kit](docs/DEMO.md))*
+
 ## The problem
 
 Coding LLMs write shaders effectively blind. They cannot see rendered output,
@@ -164,6 +171,21 @@ have surfaced this — only running it in a real browser GPU pipeline did.
 | `shadertoy_get` | Fetch a Shadertoy shader by id or URL, harness-adapted. |
 | `shadertoy_search` | Search Shadertoy for matching shader ids. |
 | `lookup_reference` | Offline curated GLSL/WGSL/Shadertoy reference + common gotchas. |
+
+## Gallery
+
+Real output from the bundled examples, rendered through the `shadereye-render`
+engine (and a real browser WebGL2 pipeline). Regenerate any of these with the
+`dump_frames` example — see [`docs/gallery.md`](docs/gallery.md).
+
+| Asset | What it shows |
+|---|---|
+| ![plasma](media/plasma.gif) | [`media/plasma.gif`](media/plasma.gif) — `examples/plasma.glsl` rendered native (`wgpu`), one full `iTime` loop. ([mp4](media/plasma.mp4)) |
+| ![webgl](media/webgl_demo.gif) | [`media/webgl_demo.gif`](media/webgl_demo.gif) — the same plasma in a real **WebGL2 / GLSL ES 3.00** browser pipeline. ([mp4](media/webgl_demo.mp4) · [page](media/webgl_demo.html)) |
+| ![raymarch fix](media/raymarch-fix.png) | [`media/raymarch-fix.png`](media/raymarch-fix.png) — `examples/raymarch_broken.glsl` before/after the integer-division fix: no blue → blue restored. |
+
+See [`docs/DEMO.md`](docs/DEMO.md) for the MCP config, a vetted demo prompt, a
+60-second shot list, and recording instructions (asciinema / vhs / OBS).
 
 ## Roadmap (post-v1)
 
