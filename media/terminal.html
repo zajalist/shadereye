@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>shadereye — agent transcript</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --fg: #c9d1d9;
+    --dim: #8b949e;
+    --user: #58a6ff;
+    --tool: #d2a8ff;
+    --ok: #3fb950;
+    --code: #ffa657;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg);
+    font-family: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  }
+  #wrap {
+    width: 900px; min-height: 560px; margin: 0 auto;
+    padding: 22px 26px; color: var(--fg); font-size: 16px; line-height: 1.55;
+  }
+  .titlebar {
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .r { background: #ff5f56; } .y { background: #ffbd2e; } .g { background: #27c93f; }
+  .titlebar span { color: var(--dim); margin-left: 10px; font-size: 14px; }
+  .line { margin: 8px 0; white-space: pre-wrap; word-break: break-word; }
+  .hidden { display: none; }
+  .role-user { color: var(--user); font-weight: 600; }
+  .role-asst { color: var(--ok); font-weight: 600; }
+  .tool { color: var(--tool); }
+  .code { color: var(--code); }
+  .dim { color: var(--dim); }
+  .ok { color: var(--ok); font-weight: 600; }
+  .thumbs { margin: 10px 0; }
+  .thumbs img {
+    height: 132px; border: 1px solid var(--border); border-radius: 4px;
+    vertical-align: middle; background: #000;
+  }
+  .thumbs .cap { color: var(--dim); font-size: 13px; display: block; margin-top: 4px; }
+  .cursor {
+    display: inline-block; width: 9px; height: 18px; background: var(--fg);
+    vertical-align: text-bottom; animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div class="titlebar">
+    <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+    <span>claude code · shadereye mcp</span>
+  </div>
+  <div id="log"></div>
+</div>
+<script>
+// Each step: type a line, then reveal blocks. Text is accurate to the real
+// tool names (render_shader, lookup_reference) and the bundled gotcha note.
+var STEPS = [
+  { t: 150, html: '<span class="role-user">user ›</span> the blue channel looks dead in examples/raymarch_broken.glsl, fix it' },
+  { t: 350, html: '<span class="role-asst">claude ›</span> Let me render it and look.' },
+  { t: 250, html: '<span class="tool">⏺ render_shader</span><span class="dim">(source=examples/raymarch_broken.glsl, 256×144, t=0)</span>' },
+  { t: 350, type: 'thumb', html: '<div class="thumbs"><img src="raymarch_broken_thumb.png" alt="broken"><span class="cap">red↔green gradient — blue channel flat at 0</span></div>' },
+  { t: 300, html: '<span class="role-asst">claude ›</span> Blue is zero everywhere. <span class="code">float t = 1 / 2;</span> looks suspicious — checking the reference.' },
+  { t: 250, html: '<span class="tool">⏺ lookup_reference</span><span class="dim">("integer division")</span>' },
+  { t: 350, type: 'note', html: '<span class="dim">  → integer-division —</span> In GLSL, 1/2 == 0 (integer division). Use 1.0/2.0 for float results.' },
+  { t: 300, html: '<span class="role-asst">claude ›</span> That is the bug. Editing the line.' },
+  { t: 250, html: '<span class="dim">  - </span><span class="code">float t = 1 / 2;</span>' },
+  { t: 200, html: '<span class="dim">  + </span><span class="code">float t = 1.0 / 2.0;</span>' },
+  { t: 250, html: '<span class="tool">⏺ render_shader</span><span class="dim">(source=examples/raymarch_broken.glsl, 256×144, t=0)</span>' },
+  { t: 350, type: 'thumb', html: '<div class="thumbs"><img src="raymarch_fixed_thumb.png" alt="fixed"><span class="cap">blue channel now reads 0.5 — fixed</span></div>' },
+  { t: 300, html: '<span class="ok">✓ done</span> <span class="dim">— blue channel restored; integer division replaced with float division.</span>' }
+];
+
+var log = document.getElementById('log');
+
+function typeLine(html, done) {
+  // Type plain text fast, then swap in the rich HTML for that line.
+  var tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  var plain = tmp.textContent;
+  var el = document.createElement('div');
+  el.className = 'line';
+  log.appendChild(el);
+  var cur = document.createElement('span');
+  cur.className = 'cursor';
+  el.appendChild(cur);
+  var i = 0;
+  var speed = Math.max(8, Math.min(18, 600 / plain.length));
+  (function tick() {
+    if (i <= plain.length) {
+      cur.insertAdjacentText('beforebegin', plain.charAt(i - 1) || '');
+      i++;
+      setTimeout(tick, speed);
+    } else {
+      el.innerHTML = html;
+      done();
+    }
+  })();
+}
+
+function revealBlock(html, done) {
+  var el = document.createElement('div');
+  el.className = 'line';
+  el.innerHTML = html;
+  log.appendChild(el);
+  setTimeout(done, 120);
+}
+
+var idx = 0;
+function run() {
+  if (idx >= STEPS.length) {
+    setTimeout(function () {}, 2000); // hold tail
+    return;
+  }
+  var s = STEPS[idx++];
+  setTimeout(function () {
+    if (s.type === 'thumb' || s.type === 'note') {
+      revealBlock(s.html, run);
+    } else {
+      typeLine(s.html, run);
+    }
+  }, s.t);
+}
+window.addEventListener('load', function () { setTimeout(run, 400); });
+</script>
+</body>
+</html>

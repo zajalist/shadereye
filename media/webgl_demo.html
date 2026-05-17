@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>shadereye — WebGL2 plasma</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+  #c { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="600" height="338"></canvas>
+<script>
+(function () {
+  // Ported from examples/plasma.glsl into GLSL ES 3.00 (Shadertoy uniforms).
+  var vsrc =
+    "#version 300 es\n" +
+    "in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }";
+  var fsrc =
+    "#version 300 es\n" +
+    "precision highp float;\n" +
+    "out vec4 _st;\n" +
+    "uniform vec3 iResolution; uniform float iTime;\n" +
+    "void mainImage(out vec4 fragColor, in vec2 fragCoord) {\n" +
+    "    vec2 uv = fragCoord / iResolution.xy;\n" +
+    "    float v = sin(uv.x * 10.0 + iTime) + sin(uv.y * 10.0 + iTime);\n" +
+    "    fragColor = vec4(0.5 + 0.5 * cos(v + vec3(0.0, 2.0, 4.0)), 1.0);\n" +
+    "}\n" +
+    "void main(){ vec4 c; mainImage(c, gl_FragCoord.xy); _st = c; }";
+
+  var cv = document.getElementById('c');
+  var gl = cv.getContext('webgl2');
+  if (!gl) { document.body.style.background = '#400'; return; }
+
+  function sh(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(s));
+      return null;
+    }
+    return s;
+  }
+  var vs = sh(gl.VERTEX_SHADER, vsrc);
+  var fs = sh(gl.FRAGMENT_SHADER, fsrc);
+  var pr = gl.createProgram();
+  gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
+  gl.useProgram(pr);
+
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(pr, "p");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  var uRes = gl.getUniformLocation(pr, "iResolution");
+  var uT = gl.getUniformLocation(pr, "iTime");
+  var W = cv.width, H = cv.height;
+  var start = performance.now();
+
+  function frame() {
+    // Loop iTime over one full 2*PI period so the GIF cycle is seamless.
+    var t = ((performance.now() - start) / 1000.0) % 6.2831853;
+    gl.uniform3f(uRes, W, H, 1.0);
+    gl.uniform1f(uT, t);
+    gl.viewport(0, 0, W, H);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
