@@ -64,6 +64,83 @@ pub fn wrap_shadertoy_fragment(src: &str) -> String {
     format!("{SHADERTOY_PREAMBLE}\n{src}\n{SHADERTOY_MAIN}")
 }
 
+/// One diagnostic produced while compiling a shader.
+#[derive(Debug, Clone, Serialize)]
+pub struct Diagnostic {
+    pub message: String,
+    /// 1-based line if naga reported a location.
+    pub line: Option<u32>,
+    pub column: Option<u32>,
+}
+
+/// Result of validating a shader: structured, never panics.
+#[derive(Debug, Clone, Serialize)]
+pub struct ValidationReport {
+    pub language: ShaderLang,
+    pub errors: Vec<Diagnostic>,
+    pub warnings: Vec<Diagnostic>,
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum CompileError {
+    #[error("unsupported language for this operation: {0:?}")]
+    Unsupported(ShaderLang),
+    #[error("translation failed: {0}")]
+    Translation(String),
+}
+
+/// Parse + validate a shader. `lang` overrides detection when `Some`.
+/// Returns a report; parse failures land in `errors`, not as a panic.
+pub fn validate(src: &str, lang: Option<ShaderLang>) -> ValidationReport {
+    let language = lang.unwrap_or_else(|| detect_language(src));
+    let mut errors = Vec::new();
+
+    let module = match language {
+        ShaderLang::Wgsl => naga::front::wgsl::parse_str(src).map_err(|e| e.emit_to_string(src)),
+        ShaderLang::Glsl => {
+            let mut fe = naga::front::glsl::Frontend::default();
+            fe.parse(
+                &naga::front::glsl::Options::from(naga::ShaderStage::Fragment),
+                src,
+            )
+            .map_err(|e| format!("{e:?}"))
+        }
+        ShaderLang::SpirV => Err("SPIR-V validation not supported as text input".to_string()),
+        ShaderLang::Hlsl => Err(
+            "HLSL is supported only as a translation target/source via naga; \
+            validate after translating to WGSL"
+                .to_string(),
+        ),
+    };
+
+    match module {
+        Ok(m) => {
+            let mut validator = naga::valid::Validator::new(
+                naga::valid::ValidationFlags::all(),
+                naga::valid::Capabilities::all(),
+            );
+            if let Err(e) = validator.validate(&m) {
+                errors.push(Diagnostic {
+                    message: format!("{e:?}"),
+                    line: None,
+                    column: None,
+                });
+            }
+        }
+        Err(msg) => errors.push(Diagnostic {
+            message: msg,
+            line: None,
+            column: None,
+        }),
+    }
+
+    ValidationReport {
+        language,
+        errors,
+        warnings: Vec::new(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -105,5 +182,22 @@ mod tests {
     fn does_not_double_wrap_complete_glsl() {
         let already = "#version 460\nout vec4 c;\nvoid main(){ c = vec4(1.0); }";
         assert_eq!(wrap_shadertoy_fragment(already), already);
+    }
+
+    #[test]
+    fn validates_good_wgsl() {
+        let src =
+            "@fragment fn fs() -> @location(0) vec4<f32> { return vec4<f32>(1.0,0.0,0.0,1.0); }";
+        let r = validate(src, Some(ShaderLang::Wgsl));
+        assert!(r.errors.is_empty(), "unexpected errors: {:?}", r.errors);
+    }
+
+    #[test]
+    fn reports_glsl_syntax_error_with_message() {
+        // missing semicolon
+        let body = "void mainImage(out vec4 o, in vec2 fc){ o = vec4(1.0) }";
+        let r = validate(&wrap_shadertoy_fragment(body), Some(ShaderLang::Glsl));
+        assert!(!r.errors.is_empty());
+        assert!(!r.errors[0].message.is_empty());
     }
 }
