@@ -9,10 +9,10 @@ generated post-build by running the example shaders through the `shadereye-mcp`
 `examples/plasma.glsl` — an animated Shadertoy-style plasma using stacked sines
 of the UV coordinates modulated by `iTime`, mapped through a cosine palette.
 
-## Mandelbrot
+## Solid (WGSL)
 
-A classic escape-time Mandelbrot set, colored by iteration count — a good
-stress test for the `visualize_expression` and `probe_pixels` tools.
+`examples/solid.wgsl` — a minimal WGSL fragment shader, used to demonstrate the
+multi-language path and `translate_shader` (WGSL ↔ GLSL).
 
 ## Raymarch
 
