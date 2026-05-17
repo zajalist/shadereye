@@ -1,0 +1,28 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/shadereye-compile",
+]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/zajalist/shadereye"
+version = "0.1.0"
+
+[workspace.dependencies]
+naga = { version = "23", features = ["glsl-in", "wgsl-in", "wgsl-out", "spv-in", "spv-out"] }
+wgpu = "23"
+pollster = "0.3"
+bytemuck = { version = "1", features = ["derive"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+chromiumoxide = { version = "0.7", features = ["tokio-runtime"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "process", "time"] }
+futures = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+which = "6"
+rmcp = { version = "0.1", features = ["server", "transport-io"] }
+anyhow = "1"
