@@ -1,0 +1,6 @@
+[
+  {"name":"clamp","sig":"genType clamp(genType x, genType minV, genType maxV)","note":"Returns min(max(x,minV),maxV). Common for keeping colors in [0,1]."},
+  {"name":"mix","sig":"genType mix(genType a, genType b, genType t)","note":"Linear interpolation a*(1-t)+b*t."},
+  {"name":"smoothstep","sig":"genType smoothstep(edge0, edge1, x)","note":"Hermite interpolation; 0 below edge0, 1 above edge1. edge0 must be < edge1."},
+  {"name":"fract","sig":"genType fract(genType x)","note":"x - floor(x). Core of most procedural/noise patterns."}
+]
