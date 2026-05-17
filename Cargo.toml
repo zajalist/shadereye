@@ -4,6 +4,8 @@ members = [
   "crates/shadereye-compile",
   "crates/shadereye-render",
   "crates/shadereye-browser",
+  "crates/shadereye-shadertoy",
+  "crates/shadereye-reference",
 ]
 
 [workspace.package]
