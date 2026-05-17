@@ -6,6 +6,7 @@ members = [
   "crates/shadereye-browser",
   "crates/shadereye-shadertoy",
   "crates/shadereye-reference",
+  "crates/shadereye-mcp",
 ]
 
 [workspace.package]
