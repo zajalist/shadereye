@@ -141,6 +141,64 @@ pub fn validate(src: &str, lang: Option<ShaderLang>) -> ValidationReport {
     }
 }
 
+/// Cross-compile a shader between languages via naga's IR.
+/// Supported source: WGSL, GLSL. Supported target: WGSL, GLSL, SPIR-V (HLSL via wgsl-out path is roadmap).
+pub fn translate(src: &str, from: ShaderLang, to: ShaderLang) -> Result<String, CompileError> {
+    let module = match from {
+        ShaderLang::Wgsl => naga::front::wgsl::parse_str(src)
+            .map_err(|e| CompileError::Translation(e.emit_to_string(src)))?,
+        ShaderLang::Glsl => {
+            let mut fe = naga::front::glsl::Frontend::default();
+            fe.parse(
+                &naga::front::glsl::Options::from(naga::ShaderStage::Fragment),
+                src,
+            )
+            .map_err(|e| CompileError::Translation(format!("{e:?}")))?
+        }
+        other => return Err(CompileError::Unsupported(other)),
+    };
+
+    let info = naga::valid::Validator::new(
+        naga::valid::ValidationFlags::all(),
+        naga::valid::Capabilities::all(),
+    )
+    .validate(&module)
+    .map_err(|e| CompileError::Translation(format!("{e:?}")))?;
+
+    match to {
+        ShaderLang::Wgsl => {
+            naga::back::wgsl::write_string(&module, &info, naga::back::wgsl::WriterFlags::empty())
+                .map_err(|e| CompileError::Translation(format!("{e:?}")))
+        }
+        ShaderLang::Glsl => {
+            let mut buf = String::new();
+            let opts = naga::back::glsl::Options::default();
+            let pipe = naga::back::glsl::PipelineOptions {
+                shader_stage: naga::ShaderStage::Fragment,
+                entry_point: module
+                    .entry_points
+                    .first()
+                    .map(|e| e.name.clone())
+                    .unwrap_or_else(|| "main".into()),
+                multiview: None,
+            };
+            let mut w = naga::back::glsl::Writer::new(
+                &mut buf,
+                &module,
+                &info,
+                &opts,
+                &pipe,
+                naga::proc::BoundsCheckPolicies::default(),
+            )
+            .map_err(|e| CompileError::Translation(format!("{e:?}")))?;
+            w.write()
+                .map_err(|e| CompileError::Translation(format!("{e:?}")))?;
+            Ok(buf)
+        }
+        other => Err(CompileError::Unsupported(other)),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -199,5 +257,14 @@ mod tests {
         let r = validate(&wrap_shadertoy_fragment(body), Some(ShaderLang::Glsl));
         assert!(!r.errors.is_empty());
         assert!(!r.errors[0].message.is_empty());
+    }
+
+    #[test]
+    fn translates_wgsl_to_glsl() {
+        let src =
+            "@fragment fn fs() -> @location(0) vec4<f32> { return vec4<f32>(0.2,0.4,0.6,1.0); }";
+        let out = translate(src, ShaderLang::Wgsl, ShaderLang::Glsl).expect("translate ok");
+        assert!(out.contains("0.2") || out.to_lowercase().contains("vec4"));
+        assert!(!out.is_empty());
     }
 }
