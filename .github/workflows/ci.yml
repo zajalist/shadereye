@@ -1,0 +1,18 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: rustfmt, clippy }
+      - name: Mesa software GL (for wgpu software fallback)
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-tools
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - name: Test (browser tests auto-skip without Chrome)
+        run: cargo test --workspace
+        env:
+          WGPU_BACKEND: vulkan
+          LIBGL_ALWAYS_SOFTWARE: "1"
